@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Marketplace de Test-Drive · Relatório Estratégico</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#13161C;        /* graphite */
+    --ink-2:#1C212B;
+    --paper:#F6F4EF;      /* warm light reading surface */
+    --paper-2:#FFFFFF;
+    --line:#D9D4C8;
+    --muted:#6A6F78;
+    --text:#23272E;
+    --teal:#0FAE9B;       /* electric signal */
+    --teal-d:#0A7E70;
+    --amber:#E2952B;      /* warning/highlight */
+    --red:#D24B3E;
+    --blue:#3E73C4;
+    --shadow:0 1px 0 rgba(0,0,0,.04), 0 8px 30px rgba(20,22,28,.06);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--paper);color:var(--text);
+    font-family:Inter,system-ui,sans-serif;font-size:16px;line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px;margin:0 auto;padding:0 28px}
+  h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;font-weight:600;letter-spacing:-.01em;color:var(--ink);line-height:1.12}
+  .mono{font-family:'Space Mono',monospace}
+  a{color:var(--teal-d);text-decoration:none;border-bottom:1px solid rgba(10,126,112,.3)}
+  a:hover{border-bottom-color:var(--teal-d)}
+
+  /* ---------- telemetry eyebrow (signature) ---------- */
+  .eyebrow{
+    font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--teal-d);display:inline-flex;align-items:center;gap:9px;margin:0 0 14px
+  }
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--teal);display:inline-block}
+  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 0 3px rgba(15,174,155,.18)}
+
+  /* ---------- hero ---------- */
+  .hero{background:var(--ink);color:#EDEFF2;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(700px 320px at 82% -10%, rgba(15,174,155,.22), transparent 60%),
+      linear-gradient(transparent 0 95%, rgba(255,255,255,.05) 95%) 0 0/100% 38px;
+    pointer-events:none}
+  .hero .wrap{position:relative;z-index:2;padding:64px 28px 56px}
+  .hero .eyebrow{color:#7FE3D5}
+  .hero .eyebrow::before{background:#7FE3D5}
+  .hero .eyebrow .dot{background:#7FE3D5;box-shadow:0 0 0 3px rgba(127,227,213,.18)}
+  .hero h1{color:#fff;font-size:clamp(33px,5.4vw,58px);font-weight:700;margin:.1em 0 .35em;max-width:16ch}
+  .hero h1 em{font-style:normal;color:var(--teal);}
+  .hero .lede{font-size:clamp(16px,2vw,19px);color:#C4C9D1;max-width:60ch;margin:0}
+  .hero .meta{margin-top:34px;display:flex;flex-wrap:wrap;gap:10px 26px;font-family:'Space Mono',monospace;font-size:12px;color:#9AA1AB}
+  .hero .meta b{color:#E7EAEE;font-weight:400}
+
+  .cluster{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(255,255,255,.08);
+    margin-top:40px;border:1px solid rgba(255,255,255,.1);border-radius:12px;overflow:hidden}
+  .cluster div{background:var(--ink-2);padding:18px 18px 16px}
+  .cluster .n{font-family:'Space Grotesk';font-size:26px;font-weight:700;color:#fff;line-height:1}
+  .cluster .n span{color:var(--teal);font-size:16px}
+  .cluster .l{font-size:11.5px;color:#9AA1AB;margin-top:7px;line-height:1.3}
+
+  /* ---------- sections ---------- */
+  section{padding:58px 0;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:0}
+  .secnum{font-family:'Space Mono',monospace;font-size:12px;color:var(--muted)}
+  h2{font-size:clamp(25px,3.4vw,34px);margin:6px 0 18px}
+  h3{font-size:20px;margin:34px 0 10px}
+  h4{font-size:15.5px;margin:22px 0 6px;font-weight:600}
+  p{margin:0 0 15px}
+  .sub{color:var(--muted);max-width:72ch;margin:-6px 0 24px;font-size:15.5px}
+  strong{font-weight:600;color:var(--ink)}
+
+  .callout{border-left:3px solid var(--amber);background:#FBF3E4;padding:16px 20px;border-radius:0 8px 8px 0;margin:22px 0;font-size:15px}
+  .callout.teal{border-color:var(--teal);background:#E7F6F3}
+  .callout.red{border-color:var(--red);background:#FAEAE8}
+  .callout b{display:block;font-family:'Space Grotesk';margin-bottom:3px;color:var(--ink)}
+
+  /* ---------- charts ---------- */
+  .chart-card{background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:22px 22px 18px;margin:26px 0;box-shadow:var(--shadow)}
+  .chart-card h4{margin:0 0 2px;font-size:16px}
+  .chart-card .cap{font-size:13px;color:var(--muted);margin:0 0 16px}
+  .chart-box{position:relative;height:330px}
+  .chart-box.tall{height:380px}
+  .src{font-family:'Space Mono',monospace;font-size:10.5px;color:#9097A1;margin-top:12px;letter-spacing:.02em}
+  .src a{color:#9097A1;border-bottom-color:rgba(0,0,0,.12)}
+
+  /* ---------- tables ---------- */
+  .tbl-scroll{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px;background:var(--paper-2)}
+  table{border-collapse:collapse;width:100%;min-width:760px;font-size:13.5px}
+  th,td{text-align:left;padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{background:var(--ink);color:#EAEDF1;font-family:'Space Grotesk';font-weight:500;font-size:12.5px;letter-spacing:.01em;position:sticky;top:0}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:nth-child(even){background:#FBFAF7}
+  td .pill{display:inline-block;font-family:'Space Mono',monospace;font-size:10.5px;padding:2px 7px;border-radius:20px;border:1px solid var(--line)}
+  .pill.hi{background:#E7F6F3;border-color:#9FD9CF;color:var(--teal-d)}
+  .pill.lo{background:#FAEAE8;border-color:#E5B4AD;color:#B23B30}
+  .pill.mid{background:#FBF3E4;border-color:#EAD2A3;color:#9A6A14}
+
+  /* ---------- journey stepper ---------- */
+  .journey{display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin:26px 0;counter-reset:step}
+  .step{position:relative;padding:20px 16px 18px;background:var(--paper-2);border:1px solid var(--line);border-right:0}
+  .step:last-child{border-right:1px solid var(--line);border-radius:0 12px 12px 0}
+  .step:first-child{border-radius:12px 0 0 12px}
+  .step .ph{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--teal-d);text-transform:uppercase}
+  .step h4{margin:8px 0 6px;font-size:14.5px}
+  .step p{font-size:12.5px;color:var(--muted);margin:0;line-height:1.45}
+  .step .bar{height:3px;background:linear-gradient(90deg,var(--teal),rgba(15,174,155,.15));margin-bottom:14px;border-radius:3px}
+  .step.us .bar{background:linear-gradient(90deg,var(--amber),rgba(226,149,43,.15))}
+  .step.us .ph{color:#9A6A14}
+
+  /* ---------- SWOT ---------- */
+  .swot{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:24px 0}
+  .swot div{border:1px solid var(--line);border-radius:12px;padding:18px 20px;background:var(--paper-2)}
+  .swot h4{margin:0 0 10px;display:flex;align-items:center;gap:8px;font-size:15px}
+  .swot .tag{font-family:'Space Mono',monospace;font-size:10px;width:22px;height:22px;display:grid;place-items:center;border-radius:6px;color:#fff}
+  .swot ul{margin:0;padding-left:17px}
+  .swot li{margin:0 0 7px;font-size:13.5px;color:var(--text)}
+  .swot .s .tag{background:var(--teal-d)} .swot .w .tag{background:var(--red)}
+  .swot .o .tag{background:var(--blue)} .swot .t .tag{background:var(--amber)}
+
+  /* ---------- roadmap ---------- */
+  .road{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:24px 0}
+  .phase{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--paper-2)}
+  .phase .top{background:var(--ink);color:#fff;padding:16px 18px}
+  .phase .top .mono{color:var(--teal);font-size:11px}
+  .phase .top h4{color:#fff;margin:5px 0 2px;font-size:17px}
+  .phase .top .when{font-size:12px;color:#9AA1AB}
+  .phase .body{padding:16px 18px}
+  .phase ul{margin:0;padding-left:16px}
+  .phase li{font-size:13px;margin:0 0 8px;color:var(--text)}
+  .phase .body .cost{margin-top:12px;font-family:'Space Mono',monospace;font-size:11.5px;color:var(--muted);border-top:1px dashed var(--line);padding-top:10px}
+
+  /* ---------- reco list ---------- */
+  ol.reco{counter-reset:r;list-style:none;padding:0;margin:24px 0}
+  ol.reco li{counter-increment:r;position:relative;padding:14px 16px 14px 56px;border:1px solid var(--line);border-radius:10px;margin-bottom:10px;background:var(--paper-2);font-size:14.5px}
+  ol.reco li::before{content:counter(r,decimal-leading-zero);position:absolute;left:16px;top:13px;font-family:'Space Mono',monospace;font-size:13px;color:#fff;background:var(--teal-d);width:28px;height:28px;border-radius:7px;display:grid;place-items:center}
+  ol.reco li b{font-family:'Space Grotesk'}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:30px}
+  ul.clean{padding-left:18px;margin:6px 0 14px}
+  ul.clean li{margin-bottom:7px}
+
+  footer{background:var(--ink);color:#9AA1AB;font-size:13px;padding:40px 0}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:18px}
+  footer b{color:#E7EAEE;font-weight:500;font-family:'Space Grotesk'}
+  .disc{font-size:12px;color:#777E88;max-width:62ch;line-height:1.55}
+
+  @media(max-width:860px){
+    .cluster{grid-template-columns:1fr 1fr}
+    .journey{grid-template-columns:1fr 1fr}
+    .step,.step:first-child,.step:last-child{border-right:1px solid var(--line);border-radius:10px;margin-bottom:8px}
+    .road{grid-template-columns:1fr}
+    .two{grid-template-columns:1fr;gap:0}
+    .swot{grid-template-columns:1fr}
+  }
+  @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<!-- ============ HERO ============ -->
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span> Relatório de mercado · Brasil · 2025–2026</div>
+    <h1>O test-drive virou o <em>ponto cego</em> da venda digital de carros.</h1>
+    <p class="lede">Cerca de 9 em cada 10 compras de automóvel no Brasil já começam online — mas o agendamento e a experiência do test-drive seguem fragmentados, presos a uma montadora por vez e dependentes de retorno manual. Esta é a lacuna que um marketplace multimarca pode ocupar.</p>
+    <div class="meta">
+      <span>DOC <b>v1.0</b></span>
+      <span>ESCOPO <b>Análise competitiva + técnica + estratégia</b></span>
+      <span>FOCO <b>Experiência do cliente no test-drive</b></span>
+      <span>BASE <b>Fontes públicas verificadas</b></span>
+    </div>
+
+    <div class="cluster">
+      <div><div class="n">~90<span>%</span></div><div class="l">das compras de carro no Brasil começam pela internet</div></div>
+      <div><div class="n">+40<span>%</span></div><div class="l">de conversão em lojas que digitalizaram o atendimento</div></div>
+      <div><div class="n">99<span>%</span></div><div class="l">dos smartphones brasileiros têm WhatsApp instalado</div></div>
+      <div><div class="n">13<span>%</span></div><div class="l">do tempo da jornada é gasto, de fato, dentro da loja</div></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ============ 1 · RESUMO ============ -->
+<section id="resumo">
+  <div class="eyebrow"><span class="dot"></span> 01 · Resumo executivo</div>
+  <h2>A oportunidade não é "mais um app de montadora". É o conector que falta.</h2>
+  <p class="sub">O que a pesquisa mostrou, em uma página.</p>
+
+  <p>O mercado automotivo brasileiro já é <strong>digital na largada e analógico na chegada</strong>. O comprador pesquisa, compara e decide online — em média gasta <strong>60% do tempo da jornada pesquisando na internet</strong> e apenas 13% dentro da concessionária — mas, no momento de experimentar o carro, cai num funil manual: formulário no site de uma única marca, espera por retorno do vendedor, agenda invisível. As montadoras resolveram bem o agendamento <em>dentro do seu próprio ecossistema</em> (a Nissan é o melhor exemplo: site + chatbot de WhatsApp com agenda completa), e várias plataformas de IA (ChatBee, SocialHub, DT Network, Syonet) vendem automação de atendimento <em>para a concessionária</em>. Ninguém oferece, do lado do <strong>consumidor</strong>, um lugar único, multimarca, para comparar modelos e agendar test-drives nas melhores concessionárias.</p>
+
+  <div class="callout teal">
+    <b>Tese central</b>
+    O diferencial defensável não é o agendamento (commoditizado) — é a <strong>experiência completa do test-drive</strong>: relatório técnico pós-test-drive com telemetria, comparação multimarca lado a lado, e um programa de qualidade (cliente oculto) que torna o ranking das "concessionárias mais bem-vistas" um ativo de dados proprietário.
+  </div>
+
+  <p>Há um alerta importante de método. O número de mercado que circulava no briefing original (US$ 86,94M → 207,03M) refere-se a uma categoria <strong>errada</strong> ("in-vehicle apps" = software embarcado de infotainment) e está distorcido em ordem de grandeza. Os proxies corretos — apps de varejo automotivo e analytics veicular — são tratados na Seção 4, e mudam a conversa de "milhões" para um TAM real na casa dos bilhões de dólares globalmente, com o Brasil como um dos mercados de WhatsApp-commerce mais maduros do mundo.</p>
+</section>
+
+<!-- ============ 2 · CONCORRÊNCIA ============ -->
+<section id="concorrencia">
+  <div class="eyebrow"><span class="dot"></span> 02 · Análise de concorrência</div>
+  <h2>Quem já disputa esse espaço — e por que ninguém ocupa o centro</h2>
+  <p class="sub">Mapeei três camadas: agendamento das montadoras, plataformas de IA para concessionárias e habilitadores de varejo digital. Cada concorrente foi verificado em fonte pública.</p>
+
+  <h3>2.1 As três camadas do mercado</h3>
+  <p>O setor não tem um concorrente frontal único; tem <strong>três grupos que resolvem pedaços do problema</strong>, nenhum deles a partir da ótica do comprador multimarca:</p>
+  <ul class="clean">
+    <li><strong>Agendamento das montadoras (concorrente direto, mas em silo):</strong> Nissan, Renault, Volkswagen, Hyundai, Mercedes-Benz, BYD, Volvo. Todas oferecem agendamento de test-drive no próprio site — quase sempre via formulário que vira lead. A <strong>Nissan</strong> é a referência: lançou agendamento online de verdade (site + chatbot de WhatsApp) que mostra a agenda real de todas as concessionárias e fecha em poucos cliques, com antecedência de 2 a 21 dias e e-mail de confirmação.</li>
+    <li><strong>Plataformas de IA para concessionárias (concorrente de infraestrutura):</strong> vendem o "motor" de atendimento — não competem pelo consumidor, e podem virar <em>parceiros</em>. ChatBee, SocialHub, DT Network (Chat Corp), Beeia.</li>
+    <li><strong>Habilitadores de varejo/CRM automotivo:</strong> Syonet, AutoForce, Reach, DealerNet, Linx Seta — sistemas de gestão de leads e showroom digital usados pelas redes.</li>
+  </ul>
+
+  <h3>2.2 Comparativo detalhado</h3>
+  <div class="tbl-scroll">
+    <table>
+      <thead>
+        <tr><th>Player</th><th>Camada</th><th>O que faz</th><th>Modelo / preço</th><th>Força</th><th>Lacuna p/ o cliente final</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><b>Nissan</b> (agend. online)</td><td>Montadora</td>
+          <td>Site + chatbot WhatsApp com agenda real de todas as lojas; confirmação automática</td>
+          <td>Gratuito p/ cliente; marca única</td>
+          <td><span class="pill hi">UX referência</span></td>
+          <td>Só Nissan. Sem comparação multimarca nem pós-test-drive</td>
+        </tr>
+        <tr>
+          <td><b>Renault / VW / Hyundai / Mercedes / BYD / Volvo</b></td><td>Montadora</td>
+          <td>Formulário de agendamento → lead → retorno manual do vendedor</td>
+          <td>Gratuito p/ cliente</td>
+          <td><span class="pill mid">Marca + estoque</span></td>
+          <td>Silo por marca; retorno lento; agenda não transparente</td>
+        </tr>
+        <tr>
+          <td><b>ChatBee</b></td><td>IA atendimento</td>
+          <td>Omnichannel (WhatsApp API, Instagram, etc.) com chatbot IA — genérico, não vertical auto</td>
+          <td>A partir de <b>R$ 149/mês</b>; parceiro oficial Meta</td>
+          <td><span class="pill hi">Preço acessível</span></td>
+          <td>Não é automotivo; sem agenda de test-drive nem CRM de revenda</td>
+        </tr>
+        <tr>
+          <td><b>SocialHub</b></td><td>IA atendimento (auto)</td>
+          <td>Chatbot IA qualifica leads de Webmotors/iCarros/OLX, agenda test-drive; integra DealerNet e Linx Seta</td>
+          <td>A partir de <b>R$ 99/mês</b></td>
+          <td><span class="pill hi">Foco automotivo</span></td>
+          <td>Ferramenta da loja, não destino do consumidor</td>
+        </tr>
+        <tr>
+          <td><b>DT Network</b> (Chat Corp)</td><td>IA atendimento (auto)</td>
+          <td>API oficial, filas por setor, IA com ficha técnica/FIPE, agendamento de test-drive c/ lembrete 24h, NPS integrado</td>
+          <td>Planos sob consulta (por volume)</td>
+          <td><span class="pill hi">Vertical + NPS</span></td>
+          <td>B2B; cada loja é uma ilha; sem visão multimarca</td>
+        </tr>
+        <tr>
+          <td><b>Syonet</b></td><td>CRM / varejo</td>
+          <td>Gestão de leads e jornada; lojas usuárias relatam <b>+40%</b> de conversão</td>
+          <td>SaaS B2B (investiu R$ 18M em tech em 2025)</td>
+          <td><span class="pill hi">Base instalada</span></td>
+          <td>CRM de retaguarda; sem camada de experiência do test-drive</td>
+        </tr>
+        <tr>
+          <td><b>Chevrolet "Shop. Click. Drive."</b></td><td>Varejo digital (EUA)</td>
+          <td>Compra online ponta a ponta da GM — benchmark internacional, <b>não confirmado no Brasil</b> sob esse nome</td>
+          <td>Gratuito p/ cliente</td>
+          <td><span class="pill mid">Ponta a ponta</span></td>
+          <td>Marca única; foco em compra, não em test-drive</td>
+        </tr>
+        <tr>
+          <td style="background:#E7F6F3"><b>SEU APP</b> (proposto)</td><td>Marketplace</td>
+          <td>Comparação + agendamento multimarca + relatório técnico pós-test-drive + cliente oculto</td>
+          <td>Free p/ cliente; assinatura p/ concessionária</td>
+          <td><span class="pill hi">Centro vazio</span></td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="src">Fontes: Nissan News BR (jul/2024) · chatbee.com.br · socialhub.pro · dtnetwork.com.br · AutoData/Syonet (mai/2025) · gm.com (Shop Click Drive, EUA). Preços e integrações conforme páginas oficiais consultadas em 2025–2026.</p>
+
+  <div class="chart-card">
+    <h4>Matriz de posicionamento competitivo</h4>
+    <p class="cap">Eixo X: foco no consumidor final (vs. ferramenta da loja). Eixo Y: profundidade da experiência de test-drive entregue. O quadrante superior-direito está vazio.</p>
+    <div class="chart-box tall"><canvas id="cPos"></canvas></div>
+    <p class="src">Posicionamento qualitativo do autor com base nas funcionalidades públicas de cada player (2025–2026).</p>
+  </div>
+</section>
+
+<!-- ============ 3 · EXPERIÊNCIA ============ -->
+<section id="experiencia">
+  <div class="eyebrow"><span class="dot"></span> 03 · Experiência do cliente</div>
+  <h2>A jornada já é digital — menos no pedaço que mais importa</h2>
+  <p class="sub">Onde o comprador brasileiro gasta o tempo dele, e onde a experiência quebra.</p>
+
+  <p>Os dados são consistentes entre fontes: mais de <strong>90% dos compradores pesquisam online antes de pisar na concessionária</strong> (Fenabrave; GearShift TNS Kantar para o Google) e, segundo a Kantar/Meta, <strong>45% pesquisam na web justamente para comprar em loja física</strong>. A Cox Automotive (Car Buyer Journey) mostra como esse tempo se distribui — e a loja, presencialmente, fica com a menor fatia.</p>
+
+  <div class="chart-card">
+    <h4>Como o comprador divide o tempo da jornada</h4>
+    <p class="cap">Apenas ~13% do tempo é gasto fisicamente na concessionária; o test-drive é o principal motivo da visita — e hoje é o ponto pior instrumentado.</p>
+    <div class="chart-box"><canvas id="cJourney"></canvas></div>
+    <p class="src">Cox Automotive — Car Buyer Journey 2018, citado por AutoForce (blog.autoforce.com).</p>
+  </div>
+
+  <p>O canal que costura tudo isso é o <strong>WhatsApp</strong> — presente em 99% dos smartphones brasileiros e, segundo a AutoForce, "o canal central da jornada de compra automotiva no Brasil", onde a velocidade de resposta deixou de ser diferencial para virar exigência. As marcas chinesas entenderam isso primeiro: chegaram com uma <strong>experiência de compra desenhada para o consumidor digital</strong> e tomaram participação relevante — a BYD chegou a liderar com 71% dos elétricos puros, e as chinesas somaram metade dos híbridos no 1º tri de 2024.</p>
+
+  <div class="chart-card">
+    <h4>Relevância dos canais na jornada automotiva brasileira</h4>
+    <p class="cap">Leitura qualitativa do peso de cada canal na decisão. O app proposto precisa nascer omnichannel, com WhatsApp como porta de entrada.</p>
+    <div class="chart-box"><canvas id="cChannels"></canvas></div>
+    <p class="src">Síntese do autor a partir de AutoForce, Exame/Syonet, AutoData e Aegis AI (2024–2026).</p>
+  </div>
+
+  <h3>3.1 A jornada ideal — onde o app entra</h3>
+  <p>Em verde, os pontos onde o marketplace cria valor que hoje ninguém entrega:</p>
+  <div class="journey">
+    <div class="step us"><div class="bar"></div><div class="ph">Hoje · genérico</div><h4>Descoberta</h4><p>Google, YouTube, Instagram. Pesquisa pulverizada em 10+ fontes.</p></div>
+    <div class="step"><div class="bar"></div><div class="ph">App</div><h4>Comparar</h4><p>Modelos de várias marcas lado a lado, com test-drives disponíveis perto.</p></div>
+    <div class="step"><div class="bar"></div><div class="ph">App</div><h4>Agendar</h4><p>Agenda real da concessionária via WhatsApp/IA. Confirmação automática.</p></div>
+    <div class="step us"><div class="bar"></div><div class="ph">Hoje · presencial</div><h4>Test-drive</h4><p>O momento da verdade — onde a marca conquista ou perde o cliente.</p></div>
+    <div class="step"><div class="bar"></div><div class="ph">App · exclusivo</div><h4>Relatório</h4><p>Resumo técnico pós-test-drive com telemetria, rota e dados do veículo.</p></div>
+    <div class="step"><div class="bar"></div><div class="ph">App</div><h4>Pós-venda</h4><p>Proposta, simulação de financiamento, avaliação de usado e follow-up.</p></div>
+  </div>
+
+  <h3>3.2 Inovações de experiência priorizadas</h3>
+  <div class="two">
+    <div>
+      <h4>Alto impacto, baixa fricção (fase 1)</h4>
+      <ul class="clean">
+        <li>Agendamento via WhatsApp com IA, 24h, com agenda transparente</li>
+        <li>Comparador multimarca com disponibilidade real de test-drive</li>
+        <li>Follow-up automático e lembrete 24h antes</li>
+      </ul>
+    </div>
+    <div>
+      <h4>Diferenciação defensável (fases 2–3)</h4>
+      <ul class="clean">
+        <li>Relatório técnico pós-test-drive (GPS, rota, consumo, perfil de uso)</li>
+        <li>Cliente oculto automatizado → ranking de qualidade das lojas</li>
+        <li>AR para visualização do veículo; showroom virtual</li>
+        <li>Avaliação digital de usado para troca + simulação de financiamento</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 · DADOS DE MERCADO ============ -->
+<section id="dados">
+  <div class="eyebrow"><span class="dot"></span> 04 · Dimensionamento de mercado</div>
+  <h2>Corrigindo o número — e achando o TAM certo</h2>
+  <p class="sub">Trocar a categoria muda tudo. Aqui estão os proxies corretos e o que eles implicam.</p>
+
+  <div class="callout red">
+    <b>Correção de método</b>
+    A cifra "US$ 86,94M → 207,03M / CAGR 10,12%" do briefing aponta para <strong>"in-vehicle apps"</strong> — software de <em>infotainment embarcado dentro do carro</em>, um mercado de <strong>dezenas de bilhões</strong> de dólares (≈US$ 68–80 bi em 2025, ~US$ 160–183 bi até 2035, CAGR ~8,6–8,9%), e que <strong>não tem relação</strong> com um marketplace de agendamento. O número original está na categoria errada e fora de escala.
+  </div>
+
+  <p>Os proxies relevantes para este projeto são dois mercados distintos, ambos reais e em crescimento de dois dígitos ou perto disso:</p>
+
+  <div class="chart-card">
+    <h4>Proxy de TAM: apps de varejo automotivo (mobile) — global</h4>
+    <p class="cap">Mercado de "Used Car Mobile Apps": US$ 9,27 bi (2026) → US$ 20,64 bi (2035), CAGR 9,3%. É a categoria mais próxima de um marketplace transacional automotivo.</p>
+    <div class="chart-box"><canvas id="cTam"></canvas></div>
+    <p class="src">Business Research Insights — Used Car Mobile Apps Market (2026–2035).</p>
+  </div>
+
+  <p>Para o módulo de <strong>relatório técnico pós-test-drive</strong>, o mercado adjacente é o de <strong>vehicle analytics</strong>: estimado em US$ 0,30 bi (2026) com salto para US$ 2,71 bi (2035) e CAGR de 27,7% — o componente de telemetria não é só diferenciação de produto, é uma frente de mercado por si só.</p>
+
+  <div class="chart-card">
+    <h4>O efeito da digitalização na conversão — dado brasileiro</h4>
+    <p class="cap">Lojas que digitalizaram o atendimento (CRM + WhatsApp + personalização) relataram até +40% de conversão. É o argumento comercial central para a assinatura B2B.</p>
+    <div class="chart-box"><canvas id="cConv"></canvas></div>
+    <p class="src">Syonet, via AutoData (mai/2025).</p>
+  </div>
+
+  <div class="callout">
+    <b>Implicação estratégica</b>
+    O dinheiro não está em cobrar do consumidor (gratuito é regra no setor). Está em capturar parte do <strong>uplift de conversão</strong> da concessionária via assinatura — ancorada no benchmark de R$ 99–149/mês das plataformas de IA — e em monetizar <strong>dados</strong> (analytics de demanda, qualidade de loja, intenção de compra).
+  </div>
+</section>
+
+<!-- ============ 5 · TECNOLOGIA ============ -->
+<section id="tecnologia">
+  <div class="eyebrow"><span class="dot"></span> 05 · Mapa tecnológico</div>
+  <h2>Stack recomendada para o MVP</h2>
+  <p class="sub">Escolhas convencionais e bem suportadas — o risco do projeto é de produto e go-to-market, não de tecnologia. Evite over-engineering na fase 1.</p>
+
+  <div class="tbl-scroll">
+    <table>
+      <thead><tr><th>Camada</th><th>Recomendação fase 1 (MVP)</th><th>Por quê</th><th>Alternativas</th></tr></thead>
+      <tbody>
+        <tr><td><b>Mobile</b></td><td>Flutter (ou React Native)</td><td>Um código p/ iOS+Android; velocidade de MVP</td><td>Swift/Kotlin nativo na fase 3</td></tr>
+        <tr><td><b>Web / painel</b></td><td>React + Next.js</td><td>Ecossistema maduro; SSR p/ SEO da vitrine</td><td>Vue/Nuxt</td></tr>
+        <tr><td><b>Backend / API</b></td><td>Node.js (NestJS) ou Python (FastAPI)</td><td>Produtividade; bom suporte a IA/integrações</td><td>Java/Spring p/ escala</td></tr>
+        <tr><td><b>Banco principal</b></td><td>PostgreSQL</td><td>Relacional, transacional, geoespacial (PostGIS p/ "lojas perto")</td><td>MySQL</td></tr>
+        <tr><td><b>Tempo real / mobile</b></td><td>Firebase (Firestore + Auth + Cloud Messaging)</td><td>Notificações, agenda em tempo real, auth rápido</td><td>Supabase</td></tr>
+        <tr><td><b>Infra</b></td><td>AWS (ou GCP)</td><td>Maturidade, mercado de talento no Brasil</td><td>GCP / Azure</td></tr>
+        <tr><td><b>IA / chatbot</b></td><td>LLM via API (WhatsApp Business API oficial Meta)</td><td>Agendamento e qualificação; mesma base dos concorrentes</td><td>BSP nacional (ex.: integrar ChatBee/SocialHub)</td></tr>
+        <tr><td><b>Telemetria (fase 2+)</b></td><td>SDK de GPS + ingestão de eventos (ex.: pipeline de analytics)</td><td>Relatório técnico pós-test-drive</td><td>Integração OBD/IoT do veículo</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout teal">
+    <b>Decisão "build vs. buy" que economiza meses</b>
+    Não construa o motor de chatbot do zero. Na fase 1, <strong>integre uma plataforma vertical existente</strong> (SocialHub e DT Network já fazem agendamento de test-drive e integram DMS como DealerNet/Linx Seta). Concentre o esforço de engenharia próprio onde está o diferencial: <strong>o comparador multimarca, o relatório de telemetria e a camada de cliente oculto</strong>.
+  </div>
+</section>
+
+<!-- ============ 6 · DIFERENCIAÇÃO + SWOT ============ -->
+<section id="swot">
+  <div class="eyebrow"><span class="dot"></span> 06 · Diferenciação &amp; SWOT</div>
+  <h2>Onde ganhar — e onde se proteger</h2>
+  <p class="sub">A diferenciação só é real se for difícil de copiar. Agendamento é fácil; dados de qualidade e telemetria proprietários, não.</p>
+
+  <div class="swot">
+    <div class="s"><h4><span class="tag">S</span> Forças</h4><ul>
+      <li>Único a atacar o "centro vazio": multimarca + experiência do test-drive</li>
+      <li>Relatório de telemetria e cliente oculto geram dados proprietários defensáveis</li>
+      <li>Custo de tecnologia baixo via integração com plataformas existentes</li>
+    </ul></div>
+    <div class="w"><h4><span class="tag">W</span> Fraquezas</h4><ul>
+      <li>Marketplace exige liquidez dos dois lados (lojas e usuários) — partida fria</li>
+      <li>Sem marca própria de veículo: depende de adesão das concessionárias</li>
+      <li>Telemetria/AR elevam custo e complexidade se feitas cedo demais</li>
+    </ul></div>
+    <div class="o"><h4><span class="tag">O</span> Oportunidades</h4><ul>
+      <li>90% das compras já começam online; loja é o elo digitalmente fraco</li>
+      <li>Marcas chinesas (BYD/GWM) crescendo e ávidas por experiência digital</li>
+      <li>Monetização de dados (analytics de demanda e qualidade de loja)</li>
+    </ul></div>
+    <div class="t"><h4><span class="tag">T</span> Ameaças</h4><ul>
+      <li>Montadora forte (ex.: Nissan) estender seu agendamento — mas só na própria marca</li>
+      <li>Plataformas de IA (SocialHub/DT) subirem para o consumidor</li>
+      <li>LGPD: telemetria e dados de comportamento exigem governança rigorosa</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ============ 7 · ROADMAP ============ -->
+<section id="roadmap">
+  <div class="eyebrow"><span class="dot"></span> 07 · Roadmap de implementação</div>
+  <h2>Três fases, 6–12 meses até tração</h2>
+  <p class="sub">Sequência deliberada: provar liquidez antes de investir em telemetria e AR.</p>
+
+  <div class="road">
+    <div class="phase">
+      <div class="top"><div class="mono">FASE 1 · MÊS 0–4</div><h4>Liquidez</h4><div class="when">MVP &amp; primeiras lojas</div></div>
+      <div class="body"><ul>
+        <li>App de comparação + agendamento multimarca</li>
+        <li>Chatbot WhatsApp (via plataforma integrada)</li>
+        <li>Piloto com 15–30 concessionárias em SP</li>
+        <li>Métricas desde o dia 1 (agendamentos, comparecimento, conversão)</li>
+      </ul><div class="cost">Foco: provar que lojas pagam pelo lead qualificado</div></div>
+    </div>
+    <div class="phase">
+      <div class="top"><div class="mono">FASE 2 · MÊS 4–8</div><h4>Diferenciação</h4><div class="when">Dados proprietários</div></div>
+      <div class="body"><ul>
+        <li>Relatório técnico pós-test-drive (GPS + dados do veículo)</li>
+        <li>Cliente oculto automatizado → ranking de qualidade</li>
+        <li>Integração nativa com DMS/CRM (DealerNet, Linx Seta)</li>
+        <li>Simulação de financiamento e avaliação de usado</li>
+      </ul><div class="cost">Foco: criar o fosso competitivo</div></div>
+    </div>
+    <div class="phase">
+      <div class="top"><div class="mono">FASE 3 · MÊS 8–12</div><h4>Escala</h4><div class="when">Expansão &amp; receita de dados</div></div>
+      <div class="body"><ul>
+        <li>AR / showroom virtual; configurador 3D</li>
+        <li>Analytics preditivo de demanda (produto B2B)</li>
+        <li>Expansão geográfica (capitais)</li>
+        <li>App nativo para performance e recursos avançados</li>
+      </ul><div class="cost">Foco: novas fontes de receita e defensabilidade</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8 · RECOMENDAÇÕES ============ -->
+<section id="reco">
+  <div class="eyebrow"><span class="dot"></span> 08 · Recomendações</div>
+  <h2>10 ações, em ordem de prioridade</h2>
+  <ol class="reco">
+    <li><b>Posicione-se como destino do consumidor, não como ferramenta de loja.</b> O centro vazio do mercado é exatamente esse — é o que ninguém ocupa.</li>
+    <li><b>Comece por São Paulo, com profundidade, não amplitude.</b> Liquidez local densa vence cobertura nacional rasa num marketplace.</li>
+    <li><b>Não construa o chatbot do zero — integre.</b> Use SocialHub/DT Network/ChatBee na fase 1 e poupe meses de engenharia.</li>
+    <li><b>Faça do relatório técnico pós-test-drive o seu "uau".</b> É o recurso que nenhuma montadora ou plataforma de IA entrega hoje.</li>
+    <li><b>Transforme o cliente oculto num ativo de dados.</b> O ranking de "concessionárias mais bem-vistas" só tem valor se for proprietário e auditável.</li>
+    <li><b>Cobrança no lado da concessionária, ancorada no uplift de +40%.</b> Assinatura entre R$ 99–149/mês como ponto de entrada, escalando por volume.</li>
+    <li><b>Priorize as marcas chinesas (BYD, GWM) na captação inicial.</b> São digital-first, crescem rápido e têm menos legado de processo.</li>
+    <li><b>Trate WhatsApp como porta de entrada principal, não como canal secundário.</b> 99% de penetração; é onde a jornada já acontece.</li>
+    <li><b>Monte governança de LGPD antes da telemetria.</b> Consentimento explícito e finalidade clara para dados de rota e comportamento.</li>
+    <li><b>Adie AR/VR para a fase 3.</b> São caras, impressionam pouco na largada e não resolvem o problema de liquidez.</li>
+  </ol>
+</section>
+
+<!-- ============ 9 · INVESTIMENTO ============ -->
+<section id="investimento">
+  <div class="eyebrow"><span class="dot"></span> 09 · Cronograma &amp; investimento</div>
+  <h2>Estimativa de investimento (faixa)</h2>
+  <p class="sub">Ordens de grandeza para planejamento, não um orçamento fechado. Variam muito com time interno vs. terceirizado e com o grau de integração vs. construção própria.</p>
+
+  <div class="tbl-scroll">
+    <table>
+      <thead><tr><th>Fase</th><th>Prazo</th><th>Frente principal</th><th>Faixa estimada (R$)</th></tr></thead>
+      <tbody>
+        <tr><td><b>Fase 1 — MVP &amp; piloto</b></td><td>Mês 0–4</td><td>App, agendamento, integração de chatbot, GTM em SP</td><td>R$ 250 mil – 600 mil</td></tr>
+        <tr><td><b>Fase 2 — Diferenciação</b></td><td>Mês 4–8</td><td>Telemetria, cliente oculto, integração DMS, financiamento</td><td>R$ 400 mil – 900 mil</td></tr>
+        <tr><td><b>Fase 3 — Escala</b></td><td>Mês 8–12</td><td>AR/showroom, analytics preditivo, app nativo, expansão</td><td>R$ 600 mil – 1,5 mi</td></tr>
+        <tr><td colspan="3"><b>Total estimado — 12 meses</b></td><td><b>R$ 1,25 mi – 3,0 mi</b></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="src">Estimativa do autor com base em custos típicos de squad de produto no Brasil (produto, design, 3–6 devs, GTM). Não constitui cotação. Custos de mídia/CAC e WhatsApp Business API (tarifa Meta por conversa) entram à parte na operação.</p>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <b>Marketplace de Test-Drive · Relatório Estratégico v1.0</b><br>
+      <span class="disc">Documento de trabalho baseado em fontes públicas verificadas (2024–2026). Dados de mercado de terceiros não foram auditados independentemente; projeções e estimativas de investimento são indicativas. Decisões financeiras e jurídicas (incluindo conformidade com a LGPD) devem ser validadas com especialistas.</span>
+    </div>
+    <div class="mono" style="font-size:11px;text-align:right;color:#9097A1">
+      Fontes-chave:<br>
+      nissannews · autodata.com.br<br>
+      chatbee.com.br · socialhub.pro<br>
+      dtnetwork.com.br · blog.autoforce.com<br>
+      businessresearchinsights.com · exame.com
+    </div>
+  </div>
+</footer>
+
+<script>
+const ink='#13161C', teal='#0FAE9B', tealD='#0A7E70', amber='#E2952B', red='#D24B3E', blue='#3E73C4', muted='#6A6F78', line='#D9D4C8';
+Chart.defaults.font.family="Inter, sans-serif";
+Chart.defaults.font.size=12.5;
+Chart.defaults.color=muted;
+
+/* 1 · Journey doughnut */
+new Chart(document.getElementById('cJourney'),{
+  type:'doughnut',
+  data:{labels:['Pesquisa online','Negociação','Visita à concessionária','Outros'],
+    datasets:[{data:[60,21,13,6],backgroundColor:[teal,blue,amber,'#C9CBCE'],borderColor:'#fff',borderWidth:3,hoverOffset:6}]},
+  options:{cutout:'58%',plugins:{legend:{position:'right',labels:{boxWidth:12,padding:14}},
+    tooltip:{callbacks:{label:c=>` ${c.label}: ${c.parsed}% do tempo`}}}}
+});
+
+/* 2 · Positioning scatter */
+const pts=[
+  {x:1.5,y:7.5,l:'Nissan (agend.)',c:blue},
+  {x:1.2,y:3.5,l:'Renault/VW/etc.',c:blue},
+  {x:2.0,y:2.0,l:'ChatBee',c:muted},
+  {x:3.0,y:4.5,l:'SocialHub',c:amber},
+  {x:3.2,y:5.0,l:'DT Network',c:amber},
+  {x:2.5,y:3.0,l:'Syonet',c:amber},
+  {x:8.6,y:8.7,l:'SEU APP',c:teal}
+];
+new Chart(document.getElementById('cPos'),{
+  type:'scatter',
+  data:{datasets:[{data:pts,parsing:false,
+    pointRadius:p=>p.raw.l==='SEU APP'?13:8,
+    pointHoverRadius:p=>p.raw.l==='SEU APP'?15:10,
+    backgroundColor:pts.map(p=>p.c),borderColor:'#fff',borderWidth:2}]},
+  options:{
+    layout:{padding:{right:18,top:10}},
+    scales:{
+      x:{min:0,max:10,title:{display:true,text:'→ Foco no CONSUMIDOR final',color:ink,font:{family:'Space Grotesk',size:12}},grid:{color:'#EDEAE2'},ticks:{display:false}},
+      y:{min:0,max:10,title:{display:true,text:'→ Profundidade da EXPERIÊNCIA de test-drive',color:ink,font:{family:'Space Grotesk',size:12}},grid:{color:'#EDEAE2'},ticks:{display:false}}
+    },
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>c.raw.l}},
+      // simple data labels
+    }
+  },
+  plugins:[{id:'labels',afterDatasetsDraw(ch){const{ctx}=ch;ctx.save();ctx.font='600 12px "Space Grotesk"';
+    ch.getDatasetMeta(0).data.forEach((pt,i)=>{const r=pts[i];ctx.fillStyle=r.l==='SEU APP'?tealD:ink;
+      ctx.textAlign='center';ctx.fillText(r.l,pt.x,pt.y-(r.l==='SEU APP'?20:14));});ctx.restore();}}]
+});
+
+/* 3 · TAM area line */
+new Chart(document.getElementById('cTam'),{
+  type:'line',
+  data:{labels:['2026','2027','2028','2029','2030','2031','2032','2033','2034','2035'],
+    datasets:[{label:'US$ bi (apps de varejo automotivo, global)',
+      data:[9.27,10.13,11.08,12.11,13.24,14.47,15.82,17.29,18.90,20.64],
+      borderColor:tealD,backgroundColor:'rgba(15,174,155,.14)',fill:true,tension:.35,
+      pointRadius:3,pointBackgroundColor:tealD,borderWidth:2.5}]},
+  options:{scales:{
+      y:{title:{display:true,text:'US$ bilhões'},grid:{color:'#EDEAE2'},ticks:{callback:v=>'$'+v+'bi'}},
+      x:{grid:{display:false}}},
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>` US$ ${c.parsed.y.toFixed(2)} bi`}}}}
+});
+
+/* 4 · Channels horizontal bar */
+new Chart(document.getElementById('cChannels'),{
+  type:'bar',
+  data:{labels:['WhatsApp','Sites de montadora/loja','Redes sociais (IG/YT)','Marketplaces (Webmotors/OLX)','Visita presencial'],
+    datasets:[{label:'Peso relativo na jornada',data:[95,82,74,68,55],
+      backgroundColor:[teal,tealD,blue,'#6FA0DA',amber],borderRadius:6,barThickness:26}]},
+  options:{indexAxis:'y',
+    scales:{x:{max:100,grid:{color:'#EDEAE2'},ticks:{callback:v=>v}},y:{grid:{display:false}}},
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>` índice ${c.parsed.x}/100 (qualitativo)`}}}}
+});
+
+/* 5 · Conversion bar */
+new Chart(document.getElementById('cConv'),{
+  type:'bar',
+  data:{labels:['Loja tradicional','Loja digitalizada (CRM+WhatsApp)'],
+    datasets:[{label:'Índice de conversão',data:[100,140],
+      backgroundColor:[muted,teal],borderRadius:8,barThickness:74}]},
+  options:{scales:{y:{beginAtZero:true,max:160,grid:{color:'#EDEAE2'},title:{display:true,text:'índice (base 100)'}},x:{grid:{display:false}}},
+    plugins:{legend:{display:false},
+      tooltip:{callbacks:{label:c=>` ${c.parsed.y} (${c.dataIndex===1?'+40% vs. base':'base'})`}}}}
+});
+</script>
+</body>
+</html>
