@@ -32,8 +32,8 @@ coverage/
 # Build artifacts
 *.tsbuildinfo
 
-#Claude / Code 
+# Claude / Code 
 .claude/
-CLAUDE .md 
+CLAUDE.md 
 SETUP.md 
 docs/
