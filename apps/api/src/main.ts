@@ -1,4 +1,7 @@
 import "reflect-metadata";
+import { config as loadEnv } from "dotenv";
+import { resolve } from "path";
+loadEnv({ path: resolve(process.cwd(), "../../.env") });
 import { NestFactory } from "@nestjs/core";
 import {
   FastifyAdapter,
@@ -13,8 +16,13 @@ async function bootstrap(): Promise<void> {
     new FastifyAdapter({ logger: true })
   );
 
+  app.enableCors({
+    origin: process.env["CORS_ORIGIN"] ?? "http://localhost:3000",
+    credentials: true,
+  });
+
   app.useGlobalPipes(
-    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })
+    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true })
   );
 
   const port = parseInt(process.env["PORT"] ?? "3001", 10);
