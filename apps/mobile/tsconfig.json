@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "target": "ES2022",
+    "jsx": "react-native",
+    "lib": ["ES2022", "DOM"],
+    "composite": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@driveos/shared": ["../../packages/shared/src/index.ts"],
+      "@driveos/shared/*": ["../../packages/shared/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": ["node_modules"]
+}

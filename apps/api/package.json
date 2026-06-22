@@ -1,0 +1,42 @@
+{
+  "name": "@driveos/api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "nest start --watch",
+    "build": "nest build",
+    "start": "node dist/main",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:migrate": "prisma migrate dev",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@driveos/shared": "workspace:*",
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/platform-fastify": "^10.0.0",
+    "@nestjs/terminus": "^10.0.0",
+    "@prisma/client": "^5.0.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.0",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.0",
+    "tsconfig-paths": "^4.2.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^10.0.0",
+    "@nestjs/schematics": "^10.0.0",
+    "@nestjs/testing": "^10.0.0",
+    "@swc/core": "^1.7.0",
+    "@types/node": "^20.0.0",
+    "fastify": "^4.0.0",
+    "prisma": "^5.0.0",
+    "typescript": "*",
+    "unplugin-swc": "^1.4.0",
+    "vite-tsconfig-paths": "^4.3.0",
+    "vitest": "*"
+  }
+}

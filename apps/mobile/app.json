@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "DriveOS",
+    "slug": "driveos",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "driveos",
+    "platforms": ["ios", "android"],
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.driveos.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "O DriveOS precisa da sua localização para registrar a rota durante o test-drive. Apenas com seu consentimento explícito.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "O DriveOS precisa da sua localização para registrar a rota durante o test-drive. Apenas com seu consentimento explícito.",
+        "NSMotionUsageDescription": "O DriveOS usa o acelerômetro para gerar o relatório de condução. Apenas com seu consentimento explícito."
+      }
+    },
+    "android": {
+      "package": "com.driveos.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "FOREGROUND_SERVICE",
+        "ACTIVITY_RECOGNITION"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "O DriveOS precisa da sua localização para registrar a rota durante o test-drive. Apenas com seu consentimento explícito.",
+          "locationWhenInUsePermission": "O DriveOS precisa da sua localização para registrar a rota durante o test-drive. Apenas com seu consentimento explícito."
+        }
+      ]
+    ]
+  }
+}

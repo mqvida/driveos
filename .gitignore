@@ -2,4 +2,38 @@
 .env.local
 .env.*.local
 .claude/settings.local.json
+
+# Node / pnpm
 node_modules/
+dist/
+.pnpm-store/
+
+# Next.js
+.next/
+out/
+
+# Expo / Metro
+.expo/
+android/
+ios/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Prisma
+apps/api/prisma/migrations/*.sql
+
+# Coverage
+coverage/
+*.lcov
+
+# Build artifacts
+*.tsbuildinfo
+
+#Claude / Code 
+.claude/
+CLAUDE .md 
+SETUP.md 
+docs/

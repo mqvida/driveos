@@ -1,0 +1,186 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
+}
+
+// ── Identidade (dados não-sensíveis) ──────────────────────────────────────────
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  role      UserRole @default(CONSUMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile    UserProfile?
+  testDrives TestDrive[]
+  consents   Consent[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  CONSUMER
+  DEALERSHIP_STAFF
+  ADMIN
+}
+
+// ── Dados pessoais — acesso restrito (LGPD art. 11) ──────────────────────────
+// Separado em tabela própria para facilitar portabilidade e exclusão (art. 18)
+model UserProfile {
+  id       String  @id @default(cuid())
+  userId   String  @unique
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName String
+  phone    String?
+  // CNH armazenada apenas como hash — nunca em texto plano
+  cnhHash  String?
+
+  createdAt DateTime @default(now())
+
+  @@map("user_profiles")
+}
+
+// ── LGPD — Consentimentos explícitos ─────────────────────────────────────────
+model Consent {
+  id        String         @id @default(cuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purpose   ConsentPurpose
+  granted   Boolean
+  grantedAt DateTime       @default(now())
+  revokedAt DateTime?
+  ipAddress String?
+
+  @@map("consents")
+}
+
+enum ConsentPurpose {
+  LOCATION_TRACKING
+  SENSOR_DATA_COLLECTION
+  AI_REPORT_GENERATION
+  MARKETING
+}
+
+// ── Catálogo ──────────────────────────────────────────────────────────────────
+model Dealership {
+  id                 String   @id @default(cuid())
+  name               String
+  cnpj               String   @unique
+  addressLine        String
+  city               String
+  state              String   @db.Char(2)
+  locationLat        Decimal  @db.Decimal(10, 7)
+  locationLng        Decimal  @db.Decimal(10, 7)
+  brands             String[]
+  subscriptionActive Boolean  @default(false)
+  createdAt          DateTime @default(now())
+
+  vehicles   Vehicle[]
+  testDrives TestDrive[]
+
+  @@map("dealerships")
+}
+
+model Vehicle {
+  id           String          @id @default(cuid())
+  dealershipId String
+  dealership   Dealership      @relation(fields: [dealershipId], references: [id])
+  brand        String
+  model        String
+  year         Int
+  fuelType     FuelType
+  category     VehicleCategory
+  priceFrom    Decimal         @db.Decimal(12, 2)
+  engineCc     Int?
+  powerHp      Int?
+  torqueNm     Int?
+  active       Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+
+  testDrives TestDrive[]
+
+  @@map("vehicles")
+}
+
+enum FuelType {
+  FLEX
+  GASOLINE
+  ELECTRIC
+  HYBRID
+  DIESEL
+}
+
+enum VehicleCategory {
+  SEDAN
+  SUV
+  HATCHBACK
+  PICKUP
+  COUPE
+}
+
+// ── Test-drive ────────────────────────────────────────────────────────────────
+model TestDrive {
+  id           String          @id @default(cuid())
+  vehicleId    String
+  vehicle      Vehicle         @relation(fields: [vehicleId], references: [id])
+  dealershipId String
+  dealership   Dealership      @relation(fields: [dealershipId], references: [id])
+  consumerId   String
+  consumer     User            @relation(fields: [consumerId], references: [id])
+  scheduledAt  DateTime
+  status       TestDriveStatus @default(SCHEDULED)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  sensorSession SensorSession?
+  report        DriveReport?
+
+  @@map("test_drives")
+}
+
+enum TestDriveStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// ── Dados de sensor — requer consentimento explícito ─────────────────────────
+// Só criada quando Consent.SENSOR_DATA_COLLECTION = true
+model SensorSession {
+  id          String    @id @default(cuid())
+  testDriveId String    @unique
+  testDrive   TestDrive @relation(fields: [testDriveId], references: [id], onDelete: Cascade)
+  consentId   String
+  startedAt   DateTime
+  endedAt     DateTime?
+  // Rota armazenada como JSON array de {lat, lng, ts} — criptografada em repouso
+  routeJson   Json?
+  createdAt   DateTime  @default(now())
+
+  report DriveReport?
+
+  @@map("sensor_sessions")
+}
+
+model DriveReport {
+  id              String         @id @default(cuid())
+  testDriveId     String         @unique
+  testDrive       TestDrive      @relation(fields: [testDriveId], references: [id])
+  sensorSessionId String?        @unique
+  sensorSession   SensorSession? @relation(fields: [sensorSessionId], references: [id])
+  maxSpeedKmh     Decimal?       @db.Decimal(6, 2)
+  avgAccelMs2     Decimal?       @db.Decimal(6, 4)
+  distanceKm      Decimal?       @db.Decimal(8, 3)
+  aiSummaryPtBr   String?
+  generatedAt     DateTime       @default(now())
+
+  @@map("drive_reports")
+}

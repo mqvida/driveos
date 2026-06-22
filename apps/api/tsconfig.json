@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node10",
+    "target": "ES2022",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "paths": {
+      "@driveos/shared": ["../../packages/shared/src/index.ts"],
+      "@driveos/shared/*": ["../../packages/shared/src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts"]
+}

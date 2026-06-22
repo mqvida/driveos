@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": true,
+    "paths": {
+      "@driveos/shared": ["./src/index.ts"],
+      "@driveos/shared/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
